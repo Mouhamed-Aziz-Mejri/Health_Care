@@ -1,0 +1,1183 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - MedCare{% endblock %}
+
+{% block topbar_title %}Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Header Section */
+    .settings-header {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 25px 30px;
+        margin-bottom: 25px;
+    }
+
+    .settings-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .settings-header p {
+        color: #7f8c8d;
+        margin: 5px 0 0 0;
+        font-size: 14px;
+    }
+
+    /* Settings Layout */
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+    }
+
+    /* Sidebar */
+    .settings-sidebar {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+    }
+
+    .settings-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .settings-nav-item {
+        margin-bottom: 5px;
+    }
+
+    .settings-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        border-radius: 6px;
+        color: #2c3e50;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .settings-nav-link:hover {
+        background: #f8f9fa;
+        color: #1abc9c;
+    }
+
+    .settings-nav-link.active {
+        background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+        color: white;
+    }
+
+    .settings-nav-icon {
+        font-size: 18px;
+        width: 20px;
+        text-align: center;
+    }
+
+    /* Main Content */
+    .settings-content {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+    }
+
+    .settings-section {
+        display: none;
+    }
+
+    .settings-section.active {
+        display: block;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0 0 20px 0;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .section-description {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    /* Form Styles */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .form-grid.single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .form-label .required {
+        color: #e74c3c;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        padding: 12px 15px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        color: #2c3e50;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #1abc9c;
+        box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-input:disabled,
+    .form-select:disabled {
+        background: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+    .form-help {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-top: 5px;
+    }
+
+    /* Profile Picture */
+    .profile-picture-section {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .profile-picture-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-picture-info {
+        flex: 1;
+    }
+
+    .profile-picture-info h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0 0 5px 0;
+    }
+
+    .profile-picture-info p {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin: 0 0 15px 0;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .file-input-label {
+        background: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .file-input-label:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+    }
+
+    /* Buttons */
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ecf0f1;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: #1abc9c;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #16a085;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    }
+
+    .btn-secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-secondary:hover {
+        background: #dfe6e9;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+
+    /* Info Cards */
+    .info-card {
+        background: #f8f9fa;
+        border-left: 4px solid #3498db;
+        padding: 15px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .info-card.warning {
+        border-left-color: #f39c12;
+        background: #fef5e7;
+    }
+
+    .info-card.danger {
+        border-left-color: #e74c3c;
+        background: #fadbd8;
+    }
+
+    .info-card.success {
+        border-left-color: #1abc9c;
+        background: #e8f8f5;
+    }
+
+    .info-card-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0 0 5px 0;
+    }
+
+    .info-card-text {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin: 0;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-box-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1abc9c;
+        margin-bottom: 5px;
+    }
+
+    .stat-box-label {
+        font-size: 13px;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
+
+    /* Switch Toggle */
+    .switch-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .switch-group:last-child {
+        border-bottom: none;
+    }
+
+    .switch-info {
+        flex: 1;
+    }
+
+    .switch-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0 0 3px 0;
+    }
+
+    .switch-description {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin: 0;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 26px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #1abc9c;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-sidebar {
+            position: static;
+        }
+
+        .settings-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-picture-section {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .settings-nav {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Loading Spinner */
+    .spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #fff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Success Message */
+    .success-message {
+        display: none;
+        background: #e8f8f5;
+        color: #1abc9c;
+        padding: 15px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #1abc9c;
+        font-weight: 600;
+    }
+
+    .success-message.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+        <h2>⚙️ Settings</h2>
+        <p>Manage your account settings and preferences</p>
+    </div>
+
+    <!-- Settings Layout -->
+    <div class="settings-layout">
+        <!-- Sidebar Navigation -->
+        <div class="settings-sidebar">
+            <ul class="settings-nav">
+                <li class="settings-nav-item">
+                    <a class="settings-nav-link active" data-section="profile">
+                        <span class="settings-nav-icon">👤</span>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li class="settings-nav-item">
+                    <a class="settings-nav-link" data-section="account">
+                        <span class="settings-nav-icon">🔐</span>
+                        <span>Account</span>
+                    </a>
+                </li>
+                <li class="settings-nav-item">
+                    <a class="settings-nav-link" data-section="notifications">
+                        <span class="settings-nav-icon">🔔</span>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="settings-nav-item">
+                    <a class="settings-nav-link" data-section="preferences">
+                        <span class="settings-nav-icon">🎨</span>
+                        <span>Preferences</span>
+                    </a>
+                </li>
+                <li class="settings-nav-item">
+                    <a class="settings-nav-link" data-section="security">
+                        <span class="settings-nav-icon">🛡️</span>
+                        <span>Security</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="settings-content">
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage"></div>
+
+            <!-- Profile Section -->
+            <div class="settings-section active" id="profile">
+                <h3 class="section-title">Profile Information</h3>
+                <p class="section-description">Update your personal information and professional details</p>
+
+                <form id="profileForm" method="POST" action="{% url 'update_profile' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Profile Picture -->
+                    <div class="profile-picture-section">
+                        <div class="profile-picture-preview">
+                            {% if doctor.user.first_name %}
+                                {{ doctor.user.first_name.0 }}{{ doctor.user.last_name.0 }}
+                            {% else %}
+                                DR
+                            {% endif %}
+                        </div>
+                        <div class="profile-picture-info">
+                            <h4>Profile Picture</h4>
+                            <p>Update your profile picture to personalize your account</p>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="profilePicture" name="profile_picture" class="file-input" accept="image/*">
+                                <label for="profilePicture" class="file-input-label">
+                                    📸 Choose Photo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                First Name <span class="required">*</span>
+                            </label>
+                            <input type="text" name="first_name" class="form-input" value="{{ doctor.user.first_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Last Name <span class="required">*</span>
+                            </label>
+                            <input type="text" name="last_name" class="form-input" value="{{ doctor.user.last_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Email Address <span class="required">*</span>
+                            </label>
+                            <input type="email" name="email" class="form-input" value="{{ doctor.user.email }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Phone Number
+                            </label>
+                            <input type="tel" name="phone" class="form-input" value="{{ doctor.phone }}">
+                        </div>
+                    </div>
+
+                    <!-- Professional Information -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                License Number <span class="required">*</span>
+                            </label>
+                            <input type="text" name="license_number" class="form-input" value="{{ doctor.license_number }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Specialty
+                            </label>
+                            <select name="specialty" class="form-select">
+                                <option value="">Select Specialty</option>
+                                <option value="General Practice" {% if doctor.specialty == "General Practice" %}selected{% endif %}>General Practice</option>
+                                <option value="Cardiology" {% if doctor.specialty == "Cardiology" %}selected{% endif %}>Cardiology</option>
+                                <option value="Dermatology" {% if doctor.specialty == "Dermatology" %}selected{% endif %}>Dermatology</option>
+                                <option value="Pediatrics" {% if doctor.specialty == "Pediatrics" %}selected{% endif %}>Pediatrics</option>
+                                <option value="Orthopedics" {% if doctor.specialty == "Orthopedics" %}selected{% endif %}>Orthopedics</option>
+                                <option value="Neurology" {% if doctor.specialty == "Neurology" %}selected{% endif %}>Neurology</option>
+                                <option value="Psychiatry" {% if doctor.specialty == "Psychiatry" %}selected{% endif %}>Psychiatry</option>
+                                <option value="Oncology" {% if doctor.specialty == "Oncology" %}selected{% endif %}>Oncology</option>
+                                <option value="Other" {% if doctor.specialty == "Other" %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="form-grid single">
+                        <div class="form-group full-width">
+                            <label class="form-label">
+                                Professional Bio
+                            </label>
+                            <textarea name="bio" class="form-textarea" placeholder="Tell patients about your experience, qualifications, and approach to care...">{{ doctor.bio|default:"" }}</textarea>
+                            <p class="form-help">This will be displayed on your profile</p>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-text">💾 Save Changes</span>
+                            <span class="spinner"></span>
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            ↺ Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Account Section -->
+            <div class="settings-section" id="account">
+                <h3 class="section-title">Account Settings</h3>
+                <p class="section-description">Manage your account information and credentials</p>
+
+                <!-- Account Stats -->
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ total_patients }}</div>
+                        <div class="stat-box-label">Total Patients</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ total_appointments }}</div>
+                        <div class="stat-box-label">Total Appointments</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ total_prescriptions }}</div>
+                        <div class="stat-box-label">Total Prescriptions</div>
+                    </div>
+                </div>
+
+                <!-- Account Info -->
+                <div class="info-card success">
+                    <div class="info-card-title">✅ Account Status: Active</div>
+                    <div class="info-card-text">Your account is in good standing. Member since {{ doctor.user.date_joined|date:"F Y" }}</div>
+                </div>
+
+                <div class="form-grid single">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" value="{{ doctor.user.username }}" disabled>
+                        <p class="form-help">Your username cannot be changed</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account ID</label>
+                        <input type="text" class="form-input" value="#{{ doctor.id }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Login</label>
+                        <input type="text" class="form-input" value="{{ doctor.user.last_login|date:'F d, Y g:i A'|default:'Never' }}" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="settings-section" id="notifications">
+                <h3 class="section-title">Notification Preferences</h3>
+                <p class="section-description">Choose what notifications you want to receive</p>
+
+                <form id="notificationsForm" method="POST" action="{% url 'update_notifications' %}">
+                    {% csrf_token %}
+
+                    <div class="switch-group">
+                        <div class="switch-info">
+                            <div class="switch-title">Email Notifications</div>
+                            <div class="switch-description">Receive email notifications for important updates</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="email_notifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="switch-group">
+                        <div class="switch-info">
+                            <div class="switch-title">Appointment Reminders</div>
+                            <div class="switch-description">Get reminded about upcoming appointments</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="appointment_reminders" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="switch-group">
+                        <div class="switch-info">
+                            <div class="switch-title">New Patient Alerts</div>
+                            <div class="switch-description">Be notified when new patients register</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="new_patient_alerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="switch-group">
+                        <div class="switch-info">
+                            <div class="switch-title">System Updates</div>
+                            <div class="switch-description">Receive notifications about system updates and maintenance</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="system_updates">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preferences Section -->
+            <div class="settings-section" id="preferences">
+                <h3 class="section-title">Display Preferences</h3>
+                <p class="section-description">Customize how you view and interact with the platform</p>
+
+                <form id="preferencesForm" method="POST" action="{% url 'update_preferences' %}">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select name="language" class="form-select">
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Timezone</label>
+                            <select name="timezone" class="form-select">
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York">Eastern Time</option>
+                                <option value="America/Chicago">Central Time</option>
+                                <option value="America/Denver">Mountain Time</option>
+                                <option value="America/Los_Angeles">Pacific Time</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date Format</label>
+                            <select name="date_format" class="form-select">
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time Format</label>
+                            <select name="time_format" class="form-select">
+                                <option value="12">12-hour</option>
+                                <option value="24">24-hour</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="switch-group">
+                        <div class="switch-info">
+                            <div class="switch-title">Dark Mode</div>
+                            <div class="switch-description">Use dark theme for the interface</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="dark_mode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="switch-group">
+                        <div class="switch-info">
+                            <div class="switch-title">Compact View</div>
+                            <div class="switch-description">Show more content on screen with reduced spacing</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="compact_view">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Section -->
+            <div class="settings-section" id="security">
+                <h3 class="section-title">Security Settings</h3>
+                <p class="section-description">Manage your password and security options</p>
+
+                <div class="info-card warning">
+                    <div class="info-card-title">⚠️ Password Security</div>
+                    <div class="info-card-text">Use a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols</div>
+                </div>
+
+                <form id="passwordForm" method="POST" action="{% url 'change_password' %}">
+                    {% csrf_token %}
+
+                    <div class="form-grid single">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Current Password <span class="required">*</span>
+                            </label>
+                            <input type="password" name="current_password" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                New Password <span class="required">*</span>
+                            </label>
+                            <input type="password" name="new_password" class="form-input" required>
+                            <p class="form-help">Minimum 8 characters</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Confirm New Password <span class="required">*</span>
+                            </label>
+                            <input type="password" name="confirm_password" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            🔐 Update Password
+                        </button>
+                    </div>
+                </form>
+
+                <hr style="margin: 40px 0; border: none; border-top: 1px solid #ecf0f1;">
+
+                <div class="info-card danger">
+                    <div class="info-card-title">⚠️ Danger Zone</div>
+                    <div class="info-card-text">Deleting your account is permanent and cannot be undone. All your data will be permanently removed.</div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()">
+                        🗑️ Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab Navigation
+    document.querySelectorAll('.settings-nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all links and sections
+            document.querySelectorAll('.settings-nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // Show corresponding section
+            const sectionId = this.getAttribute('data-section');
+            document.getElementById(sectionId).classList.add('active');
+
+            // Scroll to top of content
+            document.querySelector('.settings-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    // Profile Form Submission
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const button = this.querySelector('button[type="submit"]');
+        const btnText = button.querySelector('.btn-text');
+        const spinner = button.querySelector('.spinner');
+        
+        // Show loading state
+        btnText.style.display = 'none';
+        spinner.style.display = 'inline-block';
+        button.disabled = true;
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessMessage('Profile updated successfully!');
+            } else {
+                alert('Error: ' + (data.message || 'Failed to update profile'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating your profile');
+        })
+        .finally(() => {
+            btnText.style.display = 'inline';
+            spinner.style.display = 'none';
+            button.disabled = false;
+        });
+    });
+
+    // Password Form Submission
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newPassword = this.querySelector('[name="new_password"]').value;
+        const confirmPassword = this.querySelector('[name="confirm_password"]').value;
+        
+        if (newPassword !== confirmPassword) {
+            alert('New passwords do not match!');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessMessage('Password changed successfully!');
+                this.reset();
+            } else {
+                alert('Error: ' + (data.message || 'Failed to change password'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while changing your password');
+        });
+    });
+
+    // Notifications Form
+    document.getElementById('notificationsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessMessage('Notification preferences saved!');
+            } else {
+                alert('Error: ' + (data.message || 'Failed to save preferences'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving preferences');
+        });
+    });
+
+    // Preferences Form
+    document.getElementById('preferencesForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessMessage('Display preferences saved!');
+            } else {
+                alert('Error: ' + (data.message || 'Failed to save preferences'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving preferences');
+        });
+    });
+
+    // Delete Account Confirmation
+    function confirmDeleteAccount() {
+        if (confirm('Are you absolutely sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.')) {
+            if (confirm('This is your final warning. Type DELETE in the next prompt to confirm.')) {
+                const confirmation = prompt('Type DELETE to confirm account deletion:');
+                if (confirmation === 'DELETE') {
+                    // Proceed with account deletion
+                    fetch("{% url 'delete_account' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Your account has been deleted. You will be redirected to the login page.');
+                            window.location.href = "{% url 'login' %}";
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to delete account'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting your account');
+                    });
+                } else {
+                    alert('Account deletion cancelled. Confirmation text did not match.');
+                }
+            }
+        }
+    }
+
+    // Helper Functions
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function showSuccessMessage(message) {
+        const successMsg = document.getElementById('successMessage');
+        successMsg.textContent = message;
+        successMsg.classList.add('show');
+        
+        setTimeout(() => {
+            successMsg.classList.remove('show');
+        }, 3000);
+    }
+
+    // Profile Picture Preview
+    document.getElementById('profilePicture').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.querySelector('.profile-picture-preview');
+                preview.style.backgroundImage = `url(${e.target.result})`;
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
+                preview.textContent = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

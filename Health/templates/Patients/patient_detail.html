@@ -1,0 +1,697 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ patient.first_name }} {{ patient.last_name }} - MedCare{% endblock %}
+
+{% block topbar_title %}Patient Details{% endblock %}
+
+{% block active_patients %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .patient-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .header-info h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .header-info p {
+        font-size: 13px;
+        opacity: 0.9;
+        margin-bottom: 12px;
+    }
+
+    .header-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    /* Two Column Layout */
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+    }
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 13px;
+        color: #2c3e50;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .info-value.email,
+    .info-value.phone {
+        color: #1abc9c;
+    }
+
+    /* Medical Information */
+    .medical-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        margin-bottom: 25px;
+        grid-column: 1 / -1;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .text-content {
+        font-size: 13px;
+        color: #2c3e50;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 6px;
+        border-left: 4px solid #1abc9c;
+    }
+
+    .no-content {
+        font-size: 13px;
+        color: #7f8c8d;
+        font-style: italic;
+    }
+
+    /* Appointments Section */
+    .appointments-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        margin-bottom: 25px;
+        grid-column: 1 / -1;
+    }
+
+    .appointments-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .appointments-table thead {
+        background: #f5f7fa;
+    }
+
+    .appointments-table th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 700;
+        color: #2c3e50;
+        border-bottom: 2px solid #ecf0f1;
+        font-size: 12px;
+    }
+
+    .appointments-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ecf0f1;
+        color: #7f8c8d;
+        font-size: 12px;
+    }
+
+    .appointments-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .appointment-type {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .appointment-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .appointment-status.scheduled {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .appointment-status.completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .appointment-status.cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Consultations Section */
+    .consultations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        grid-column: 1 / -1;
+    }
+
+    .consultation-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        border-left: 4px solid #1abc9c;
+    }
+
+    .consultation-date {
+        font-size: 11px;
+        color: #7f8c8d;
+        margin-bottom: 10px;
+    }
+
+    .consultation-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .consultation-text {
+        font-size: 12px;
+        color: #7f8c8d;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+    .consultation-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        background: #e8f5f3;
+        color: #1abc9c;
+        margin-bottom: 12px;
+    }
+
+    .consultation-link {
+        font-size: 12px;
+        font-weight: 600;
+        color: #1abc9c;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .consultation-link:hover {
+        color: #16a085;
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 30px;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    /* Actions */
+    .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        grid-column: 1 / -1;
+    }
+
+    .btn-action {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        flex: 1;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: #1abc9c;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #16a085;
+    }
+
+    .btn-secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-secondary:hover {
+        background: #dfe6e9;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .medical-section {
+            grid-column: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            padding: 20px;
+        }
+
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .patient-avatar {
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+        }
+
+        .header-info h1 {
+            font-size: 22px;
+        }
+
+        .header-meta {
+            justify-content: center;
+        }
+
+        .detail-card {
+            padding: 20px;
+        }
+
+        .medical-section {
+            padding: 20px;
+        }
+
+        .info-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .info-value {
+            text-align: left;
+        }
+
+        .appointments-table {
+            font-size: 11px;
+        }
+
+        .appointments-table th,
+        .appointments-table td {
+            padding: 8px;
+        }
+
+        .consultations-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .detail-header {
+            padding: 15px;
+        }
+
+        .header-content {
+            gap: 15px;
+        }
+
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+        }
+
+        .header-info h1 {
+            font-size: 18px;
+        }
+
+        .detail-card {
+            padding: 15px;
+        }
+
+        .info-label,
+        .info-value {
+            font-size: 12px;
+        }
+
+        .section-title,
+        .card-title {
+            font-size: 14px;
+        }
+
+        .text-content {
+            font-size: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- Header -->
+    <div class="detail-header">
+        <div class="header-content">
+            <div class="patient-avatar">{{ patient.first_name|first|upper }}{{ patient.last_name|first|upper }}</div>
+            <div class="header-info">
+                <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
+                <p>Patient ID: P{{ patient.id }} • Age: {{ patient.age }} years old</p>
+                <div class="header-meta">
+                    <span class="meta-item">📧 {{ patient.email }}</span>
+                    <span class="meta-item">📱 {{ patient.phone }}</span>
+                    <span class="status-badge {% if patient.status == 'active' %}active{% elif patient.status == 'inactive' %}inactive{% else %}pending{% endif %}">
+                        {{ patient.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Details Grid -->
+    <div class="details-grid">
+        <!-- Personal Information -->
+        <div class="detail-card">
+            <h3 class="card-title">👤 Personal Information</h3>
+            <div class="info-row">
+                <span class="info-label">First Name</span>
+                <span class="info-value">{{ patient.first_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Name</span>
+                <span class="info-value">{{ patient.last_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date of Birth</span>
+                <span class="info-value">{{ patient.date_of_birth|date:"M d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Gender</span>
+                <span class="info-value">{{ patient.get_gender_display }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value">
+                    <span class="status-badge {% if patient.status == 'active' %}active{% elif patient.status == 'inactive' %}inactive{% else %}pending{% endif %}">
+                        {{ patient.get_status_display }}
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="detail-card">
+            <h3 class="card-title">📞 Contact Information</h3>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value email">{{ patient.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value phone">{{ patient.phone }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">City</span>
+                <span class="info-value">{{ patient.city }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">State</span>
+                <span class="info-value">{{ patient.state }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Zip Code</span>
+                <span class="info-value">{{ patient.zip_code }}</span>
+            </div>
+        </div>
+
+        <!-- Emergency Contact -->
+        <div class="detail-card">
+            <h3 class="card-title">🚨 Emergency Contact</h3>
+            <div class="info-row">
+                <span class="info-label">Contact Name</span>
+                <span class="info-value">{{ patient.emergency_contact }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Contact Phone</span>
+                <span class="info-value phone">{{ patient.emergency_phone }}</span>
+            </div>
+        </div>
+
+        <!-- Medical Information -->
+        <div class="detail-card">
+            <h3 class="card-title">📋 Medical Information</h3>
+            <div class="info-row">
+                <span class="info-label">Joined Date</span>
+                <span class="info-value">{{ patient.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Updated</span>
+                <span class="info-value">{{ patient.updated_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Total Appointments</span>
+                <span class="info-value">{{ appointments|length }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Total Consultations</span>
+                <span class="info-value">{{ consultations|length }}</span>
+            </div>
+        </div>
+
+        <!-- Address -->
+        <div class="medical-section">
+            <h3 class="section-title">📍 Address</h3>
+            <div class="text-content">{{ patient.address }}
+{{ patient.city }}, {{ patient.state }} {{ patient.zip_code }}</div>
+        </div>
+
+        <!-- Medical History -->
+        <div class="medical-section">
+            <h3 class="section-title">📚 Medical History</h3>
+            {% if patient.medical_history %}
+                <div class="text-content">{{ patient.medical_history }}</div>
+            {% else %}
+                <div class="no-content">No medical history recorded</div>
+            {% endif %}
+        </div>
+
+        <!-- Allergies -->
+        <div class="medical-section">
+            <h3 class="section-title">⚠️ Allergies</h3>
+            {% if patient.allergies %}
+                <div class="text-content">{{ patient.allergies }}</div>
+            {% else %}
+                <div class="no-content">No allergies recorded</div>
+            {% endif %}
+        </div>
+
+        <!-- Appointments -->
+        <div class="appointments-section">
+            <h3 class="section-title">📅 Appointments ({{ appointments|length }})</h3>
+            {% if appointments %}
+                <table class="appointments-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments|slice:":5" %}
+                        <tr>
+                            <td>{{ appointment.scheduled_date|date:"M d, Y" }}</td>
+                            <td>{{ appointment.scheduled_time|time:"H:i A" }}</td>
+                            <td class="appointment-type">{{ appointment.get_appointment_type_display }}</td>
+                            <td>{{ appointment.duration }} min</td>
+                            <td>
+                                <span class="appointment-status {{ appointment.status }}">
+                                    {{ appointment.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if appointments|length > 5 %}
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="{% url 'appointments_list' %}?patient={{ patient.id }}" style="color: #1abc9c; text-decoration: none; font-weight: 600; font-size: 12px;">
+                        View All {{ appointments|length }} Appointments →
+                    </a>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-message">No appointments scheduled</div>
+            {% endif %}
+        </div>
+
+        <!-- Consultations -->
+        {% if consultations %}
+        <div style="grid-column: 1 / -1;">
+            <h3 class="section-title">📝 Recent Consultations ({{ consultations|length }})</h3>
+            <div class="consultations-grid">
+                {% for consultation in consultations|slice:":3" %}
+                <div class="consultation-card">
+                    <div class="consultation-date">
+                        📅 {{ consultation.created_at|date:"M d, Y" }}
+                    </div>
+                    <div class="consultation-title">Consultation</div>
+                    <div class="consultation-status">{{ consultation.get_status_display }}</div>
+                    <div class="consultation-text">
+                        <strong>Chief Complaint:</strong> {{ consultation.chief_complaint|truncatewords:10 }}
+                    </div>
+                    <a href="{% url 'consultation_detail' consultation.id %}" class="consultation-link">View Details →</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% if consultations|length > 3 %}
+            <div style="text-align: center; margin-top: 15px; grid-column: 1 / -1;">
+                <a href="{% url 'consultations_list' %}?patient={{ patient.id }}" style="color: #1abc9c; text-decoration: none; font-weight: 600; font-size: 12px;">
+                    View All {{ consultations|length }} Consultations →
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="actions">
+            <a href="{% url 'edit_patient' patient.id %}" class="btn-action btn-primary">✏️ Edit Patient</a>
+            <a href="{% url 'add_appointment' %}?patient={{ patient.id }}" class="btn-action btn-primary">📅 Schedule Appointment</a>
+            <a href="{% url 'patients_list' %}" class="btn-action btn-secondary">← Back to Patients</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

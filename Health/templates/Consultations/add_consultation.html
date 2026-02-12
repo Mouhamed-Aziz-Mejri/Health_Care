@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if consultation %}Edit Consultation{% else %}Add Consultation{% endif %} - MedCare{% endblock %}
+
+{% block topbar_title %}{% if consultation %}Edit Consultation{% else %}Add Consultation{% endif %}{% endblock %}
+
+{% block active_consultations %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #bdc3c7;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        flex: 1;
+    }
+
+    .btn-submit {
+        background: #1abc9c;
+        color: white;
+    }
+
+    .btn-submit:hover {
+        background: #16a085;
+    }
+
+    .btn-cancel {
+        background: #ecf0f1;
+        color: #2c3e50;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: #dfe6e9;
+    }
+
+    .errorlist {
+        list-style: none;
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .errorlist li {
+        margin-bottom: 3px;
+    }
+
+    .non-field-errors {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .info-box {
+        background: #e8f5f3;
+        border-left: 4px solid #1abc9c;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 25px;
+        font-size: 13px;
+        color: #2c3e50;
+    }
+
+    .info-box strong {
+        color: #1abc9c;
+    }
+
+    h3 {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 16px;
+        border-bottom: 2px solid #ecf0f1;
+        padding-bottom: 10px;
+    }
+
+    .patient-card {
+        background: #f0f8f7;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #1abc9c;
+    }
+
+    .patient-card h4 {
+        color: #1abc9c;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .patient-card p {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h2 style="margin-bottom: 25px; color: #2c3e50; font-weight: 700;">
+            {% if consultation %}Edit Consultation{% else %}Add New Consultation{% endif %}
+        </h2>
+
+        {% if form.non_field_errors %}
+            <div class="non-field-errors">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="info-box">
+            <strong>Note:</strong> Document your consultation details including the patient's complaint, diagnosis, and treatment plan for complete medical records.
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <h3>Appointment & Patient</h3>
+
+            <div class="form-group">
+                <label for="id_appointment">{{ form.appointment.label }}</label>
+                {{ form.appointment }}
+                {% if form.appointment.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.appointment.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            {% if consultation and consultation.patient %}
+            <div class="patient-card">
+                <h4>📋 Patient Information</h4>
+                <p><strong>Name:</strong> {{ consultation.patient.first_name }} {{ consultation.patient.last_name }}</p>
+                <p><strong>Email:</strong> {{ consultation.patient.email }}</p>
+                <p><strong>Phone:</strong> {{ consultation.patient.phone }}</p>
+                <p><strong>Age:</strong> {{ consultation.patient.age }} years old</p>
+            </div>
+            {% endif %}
+
+            <h3>Clinical Assessment</h3>
+
+            <div class="form-group">
+                <label for="id_chief_complaint">{{ form.chief_complaint.label }}</label>
+                {{ form.chief_complaint }}
+                <small style="color: #7f8c8d; font-size: 12px;">The patient's main reason for visit</small>
+                {% if form.chief_complaint.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.chief_complaint.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_diagnosis">{{ form.diagnosis.label }}</label>
+                {{ form.diagnosis }}
+                <small style="color: #7f8c8d; font-size: 12px;">Your clinical diagnosis based on examination</small>
+                {% if form.diagnosis.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.diagnosis.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <h3>Treatment Plan</h3>
+
+            <div class="form-group">
+                <label for="id_treatment_plan">{{ form.treatment_plan.label }}</label>
+                {{ form.treatment_plan }}
+                <small style="color: #7f8c8d; font-size: 12px;">Recommended treatment and management plan</small>
+                {% if form.treatment_plan.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.treatment_plan.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_medications">{{ form.medications.label }}</label>
+                {{ form.medications }}
+                <small style="color: #7f8c8d; font-size: 12px;">Prescribed medications and dosage (optional)</small>
+                {% if form.medications.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.medications.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <h3>Follow-up</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_status">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.status.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_follow_up_notes">{{ form.follow_up_notes.label }}</label>
+                {{ form.follow_up_notes }}
+                <small style="color: #7f8c8d; font-size: 12px;">Any follow-up instructions or notes (optional)</small>
+                {% if form.follow_up_notes.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.follow_up_notes.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    {% if consultation %}Update Consultation{% else %}Save Consultation{% endif %}
+                </button>
+                <a href="{% url 'consultations_list' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

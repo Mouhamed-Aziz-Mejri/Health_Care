@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultations - MedCare{% endblock %}
+
+{% block topbar_title %}Consultations{% endblock %}
+
+{% block active_consultations %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px 10px 35px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7f8c8d;
+    }
+
+    .filter-box {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    select {
+        padding: 10px 12px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+    select:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    /* Consultations Grid */
+    .consultations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .consultation-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .consultation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .consultation-header {
+        background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+
+    .consultation-patient {
+        flex: 1;
+    }
+
+    .consultation-patient h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .consultation-patient p {
+        font-size: 12px;
+        opacity: 0.9;
+    }
+
+    .consultation-status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .consultation-body {
+        padding: 20px;
+    }
+
+    .consultation-section {
+        margin-bottom: 20px;
+    }
+
+    .consultation-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .section-content {
+        font-size: 13px;
+        color: #2c3e50;
+        line-height: 1.6;
+    }
+
+    .consultation-date {
+        font-size: 11px;
+        color: #7f8c8d;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #ecf0f1;
+    }
+
+    .consultation-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 8px 12px;
+        background: #1abc9c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-action:hover {
+        background: #16a085;
+    }
+
+    .btn-action.secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-action.secondary:hover {
+        background: #dfe6e9;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 20px;
+        flex-wrap: wrap;
+    }
+
+    .pagination button,
+    .pagination a {
+        padding: 8px 12px;
+        border: 1px solid #ecf0f1;
+        background: white;
+        color: #2c3e50;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .pagination button:hover,
+    .pagination a:hover {
+        background: #1abc9c;
+        color: white;
+        border-color: #1abc9c;
+    }
+
+    .pagination .active {
+        background: #1abc9c;
+        color: white;
+        border-color: #1abc9c;
+    }
+
+    .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .empty-state a {
+        color: #1abc9c;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: auto;
+        }
+
+        .filter-box {
+            width: 100%;
+        }
+
+        .consultations-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .consultations-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .consultation-header {
+            flex-direction: column;
+        }
+
+        .consultation-actions {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .filter-section {
+            padding: 15px;
+        }
+
+        .search-box input,
+        select {
+            font-size: 16px;
+            padding: 8px 12px;
+        }
+
+        .consultation-card {
+            margin: 0;
+        }
+
+        .consultation-header {
+            padding: 15px;
+        }
+
+        .consultation-body {
+            padding: 15px;
+        }
+
+        .section-content {
+            font-size: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Consultations</h1>
+        <p>View and manage all consultation records</p>
+    </div>
+    <a href="{% url 'add_consultation' %}" class="btn-primary">+ New Consultation</a>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <form method="GET" style="display: flex; gap: 10px; width: 100%;">
+            <input type="text" name="search" placeholder="Search by patient name..." value="{{ search_query }}">
+            <button type="submit" style="padding: 10px 20px; background: #1abc9c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">Search</button>
+        </form>
+    </div>
+    <div class="filter-box">
+        <form method="GET" style="display: flex; gap: 10px;">
+            <select name="status" onchange="this.form.submit()">
+                <option value="">All Status</option>
+                <option value="ongoing" {% if status_filter == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Consultations Grid -->
+{% if consultations %}
+<div class="consultations-grid">
+    {% for consultation in consultations %}
+    <div class="consultation-card">
+        <div class="consultation-header">
+            <div class="consultation-patient">
+                <h3>{{ consultation.patient.first_name }} {{ consultation.patient.last_name }}</h3>
+                <p>{{ consultation.patient.email }}</p>
+            </div>
+            <span class="consultation-status">{{ consultation.get_status_display }}</span>
+        </div>
+
+        <div class="consultation-body">
+            <div class="consultation-section">
+                <div class="section-label">Chief Complaint</div>
+                <div class="section-content">{{ consultation.chief_complaint|truncatewords:20 }}</div>
+            </div>
+
+            <div class="consultation-section">
+                <div class="section-label">Diagnosis</div>
+                <div class="section-content">{{ consultation.diagnosis|truncatewords:20 }}</div>
+            </div>
+
+            {% if consultation.medications %}
+            <div class="consultation-section">
+                <div class="section-label">Medications</div>
+                <div class="section-content">{{ consultation.medications|truncatewords:15 }}</div>
+            </div>
+            {% endif %}
+
+            <div class="consultation-date">
+                📅 {{ consultation.created_at|date:"M d, Y" }}
+            </div>
+
+            <div class="consultation-actions">
+                <a href="{% url 'consultation_detail' consultation.id %}" class="btn-action">View Details</a>
+                <a href="{% url 'edit_consultation' consultation.id %}" class="btn-action secondary">Edit</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo; First</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+    {% else %}
+        <button disabled>&laquo; First</button>
+        <button disabled>Previous</button>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a class="active">{{ num }}</a>
+        {% else %}
+            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last &raquo;</a>
+    {% else %}
+        <button disabled>Next</button>
+        <button disabled>Last &raquo;</button>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">📝</div>
+    <h3>No Consultations Found</h3>
+    <p>No consultation records found. Start by creating a new consultation.</p>
+    <a href="{% url 'add_consultation' %}">+ New Consultation</a>
+</div>
+{% endif %}
+{% endblock %}

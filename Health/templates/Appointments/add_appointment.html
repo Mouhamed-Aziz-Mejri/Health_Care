@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if appointment %}Edit Appointment{% else %}Schedule Appointment{% endif %} - MedCare{% endblock %}
+
+{% block topbar_title %}{% if appointment %}Edit Appointment{% else %}Schedule New Appointment{% endif %}{% endblock %}
+
+{% block active_appointments %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="time"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #bdc3c7;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        flex: 1;
+    }
+
+    .btn-submit {
+        background: #1abc9c;
+        color: white;
+    }
+
+    .btn-submit:hover {
+        background: #16a085;
+    }
+
+    .btn-cancel {
+        background: #ecf0f1;
+        color: #2c3e50;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: #dfe6e9;
+    }
+
+    .errorlist {
+        list-style: none;
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .errorlist li {
+        margin-bottom: 3px;
+    }
+
+    .non-field-errors {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .info-box {
+        background: #e8f5f3;
+        border-left: 4px solid #1abc9c;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 25px;
+        font-size: 13px;
+        color: #2c3e50;
+    }
+
+    .info-box strong {
+        color: #1abc9c;
+    }
+
+    h3 {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h2 style="margin-bottom: 25px; color: #2c3e50; font-weight: 700;">
+            {% if appointment %}Edit Appointment{% else %}Schedule New Appointment{% endif %}
+        </h2>
+
+        {% if form.non_field_errors %}
+            <div class="non-field-errors">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="info-box">
+            <strong>Note:</strong> Please fill in all the required fields to schedule an appointment. The patient and time slot must be available.
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <h3>Patient & Appointment Details</h3>
+
+            <div class="form-group">
+                <label for="id_patient">{{ form.patient.label }}</label>
+                {{ form.patient }}
+                {% if form.patient.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.patient.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_appointment_type">{{ form.appointment_type.label }}</label>
+                {{ form.appointment_type }}
+                {% if form.appointment_type.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.appointment_type.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <h3>Schedule</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_scheduled_date">{{ form.scheduled_date.label }}</label>
+                    {{ form.scheduled_date }}
+                    {% if form.scheduled_date.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.scheduled_date.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_scheduled_time">{{ form.scheduled_time.label }}</label>
+                    {{ form.scheduled_time }}
+                    {% if form.scheduled_time.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.scheduled_time.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_duration">{{ form.duration.label }}</label>
+                    {{ form.duration }}
+                    {% if form.duration.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.duration.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_status">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.status.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h3>Additional Information</h3>
+
+            <div class="form-group">
+                <label for="id_notes">{{ form.notes.label }}</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.notes.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    {% if appointment %}Update Appointment{% else %}Schedule Appointment{% endif %}
+                </button>
+                <a href="{% url 'appointments_list' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

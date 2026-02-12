@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+
+{% block title %}Patients - MedCare{% endblock %}
+
+{% block topbar_title %}Patients{% endblock %}
+
+{% block active_patients %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    /* Filter and Search Section */
+    .filter-section {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px 10px 35px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7f8c8d;
+    }
+
+    .filter-box {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    select {
+        padding: 10px 12px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+    select:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    /* Patients Table */
+    .patients-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .patients-table thead {
+        background: #f5f7fa;
+    }
+
+    .patients-table th {
+        padding: 15px 25px;
+        text-align: left;
+        font-weight: 700;
+        color: #2c3e50;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .patients-table td {
+        padding: 15px 25px;
+        border-bottom: 1px solid #ecf0f1;
+        color: #7f8c8d;
+    }
+
+    .patients-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    /* Patient Info */
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #1abc9c;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .patient-details h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 3px;
+    }
+
+    .patient-details p {
+        font-size: 12px;
+        color: #7f8c8d;
+    }
+
+    /* Status Badge */
+    .status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status.active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status.inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        background: #1abc9c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-action:hover {
+        background: #16a085;
+    }
+
+    .btn-action.edit {
+        background: #3498db;
+    }
+
+    .btn-action.edit:hover {
+        background: #2980b9;
+    }
+
+    .btn-action.delete {
+        background: #e74c3c;
+    }
+
+    .btn-action.delete:hover {
+        background: #c0392b;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 20px;
+        border-top: 1px solid #ecf0f1;
+        flex-wrap: wrap;
+    }
+
+    .pagination button,
+    .pagination a {
+        padding: 8px 12px;
+        border: 1px solid #ecf0f1;
+        background: white;
+        color: #2c3e50;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .pagination button:hover,
+    .pagination a:hover {
+        background: #1abc9c;
+        color: white;
+        border-color: #1abc9c;
+    }
+
+    .pagination .active {
+        background: #1abc9c;
+        color: white;
+        border-color: #1abc9c;
+    }
+
+    .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #7f8c8d;
+    }
+
+    .empty-state-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .empty-state a {
+        color: #1abc9c;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: auto;
+        }
+
+        .filter-box {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .patients-table {
+            font-size: 12px;
+        }
+
+        .patients-table th,
+        .patients-table td {
+            padding: 10px 12px;
+        }
+
+        .patient-avatar {
+            width: 35px;
+            height: 35px;
+            font-size: 12px;
+        }
+
+        .patient-details h4 {
+            font-size: 13px;
+        }
+
+        .patient-details p {
+            font-size: 11px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 11px;
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .filter-section {
+            padding: 15px;
+        }
+
+        .search-box input,
+        select {
+            font-size: 16px;
+            padding: 8px 12px;
+        }
+
+        .patients-table th,
+        .patients-table td {
+            padding: 8px;
+            font-size: 11px;
+        }
+
+        .patient-info {
+            gap: 8px;
+        }
+
+        .patient-avatar {
+            width: 30px;
+            height: 30px;
+            font-size: 10px;
+        }
+
+        .patient-details h4 {
+            font-size: 12px;
+        }
+
+        .patient-details p {
+            font-size: 10px;
+        }
+
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Patient Management</h1>
+        <p>Manage and view all your patients</p>
+    </div>
+    <a href="{% url 'add_patient' %}" class="btn-primary">+ Add New Patient</a>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <form method="GET" style="display: flex; gap: 10px; width: 100%;">
+            <input type="text" name="search" placeholder="Search by name, email, or phone..." value="{{ search_query }}">
+            <button type="submit" style="padding: 10px 20px; background: #1abc9c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">Search</button>
+        </form>
+    </div>
+    <div class="filter-box">
+        <form method="GET" style="display: flex; gap: 10px;">
+            <select name="status" onchange="this.form.submit()">
+                <option value="">All Status</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Patients Card -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">All Patients ({{ page_obj.paginator.count }})</h2>
+    </div>
+
+    {% if patients %}
+    <table class="patients-table">
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>
+                    <div class="patient-info">
+    <div class="patient-avatar">{{ patient.first_name|first|upper }}{{ patient.last_name|first|upper }}</div>
+    <div class="patient-details">
+        <h4>{{ patient.first_name }} {{ patient.last_name }}</h4>
+        <p>ID: P{{ patient.id }}</p>
+    </div>
+</div>
+                </td>
+                <td>{{ patient.age }}</td>
+                <td>{{ patient.get_gender_display }}</td>
+                <td>{{ patient.email }}</td>
+                <td>{{ patient.phone }}</td>
+                <td>
+                    <span class="status {% if patient.status == 'active' %}active{% elif patient.status == 'inactive' %}inactive{% else %}pending{% endif %}">
+                        {{ patient.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{% url 'patient_detail' patient.id %}" class="btn-action">View</a>
+                        <a href="{% url 'edit_patient' patient.id %}" class="btn-action edit">Edit</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo; First</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+        {% else %}
+            <button disabled>&laquo; First</button>
+            <button disabled>Previous</button>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a class="active">{{ num }}</a>
+            {% else %}
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last &raquo;</a>
+        {% else %}
+            <button disabled>Next</button>
+            <button disabled>Last &raquo;</button>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">👥</div>
+        <h3>No Patients Found</h3>
+        <p>You don't have any patients yet. Start by adding your first patient.</p>
+        <a href="{% url 'add_patient' %}">+ Add New Patient</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

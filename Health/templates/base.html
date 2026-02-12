@@ -1,0 +1,451 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MedCare{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            padding: 30px 20px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #1abc9c;
+        }
+
+        .sidebar-logo span {
+            font-size: 28px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #bdc3c7;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #1abc9c;
+            color: white;
+        }
+
+        .sidebar-menu span {
+            font-size: 20px;
+        }
+
+        /* Top Bar */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            height: 70px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            z-index: 999;
+        }
+
+        .topbar-title h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .topbar-icons {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .topbar-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .topbar-icon:hover {
+            color: #1abc9c;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1abc9c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .user-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            margin-top: 70px;
+            padding: 30px 40px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .page-title p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .btn-primary {
+            padding: 12px 25px;
+            background: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background: #16a085;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(26, 188, 156, 0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card-action {
+            color: #1abc9c;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .card-action:hover {
+            text-decoration: underline;
+        }
+
+/* Messages */
+.messages {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+}
+
+.message {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    animation: slideIn 0.3s ease forwards;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.message.success {
+    background: #27ae60;
+}
+
+.message.error {
+    background: #e74c3c;
+}
+
+.message.warning {
+    background: #f39c12;
+}
+
+.message.info {
+    background: #3498db;
+}
+
+.close-message {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.3s ease;
+}
+
+.close-message:hover {
+    opacity: 0.7;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+                padding: 20px 15px;
+            }
+
+            .topbar {
+                left: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                width: 250px;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .topbar {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .page-title h1 {
+                font-size: 22px;
+            }
+
+            .messages {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .topbar-title h1 {
+                font-size: 18px;
+            }
+
+            .main-content {
+                padding: 15px 15px;
+            }
+
+            .page-title h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span>🩺</span>
+            MedCare
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="{% url 'dashboard' %}" {% block active_dashboard %}{% endblock %}><span>📊</span> Dashboard</a></li>
+            <li><a href="{% url 'patients_list' %}" {% block active_patients %}{% endblock %}><span>👥</span> Patients</a></li>
+            <li><a href="{% url 'appointments_list' %}" {% block active_appointments %}{% endblock %}><span>📅</span> Appointments</a></li>
+            <li><a href="{% url 'calendar' %}" {% block active_calendar %}{% endblock %}><span>📆</span> Calendar</a></li>
+            <li><a href="{% url 'consultations_list' %}" {% block active_consultations %}{% endblock %}><span>📝</span> Consultations</a></li>
+            <li><a href="{% url 'prescription_list'%}" {% block active_reports %}{% endblock %}><span>📊</span> Prescriptions</a></li>
+            <li><a href="{% url 'settings' %}" {% block active_settings %}{% endblock %}><span>⚙️</span> Settings</a></li>
+            <li><a href="{% url 'logout' %}"><span>🚪</span> Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Top Bar -->
+    <header class="topbar">
+        <div class="topbar-title">
+            <h1>{% block topbar_title %}Page{% endblock %}</h1>
+        </div>
+        <div class="topbar-icons">
+            <span class="topbar-icon">🔔</span>
+            <span class="topbar-icon">💬</span>
+            <div class="user-profile">
+                <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+                <div class="user-info">
+                    <h3>{{ request.user.first_name }} {{ request.user.last_name }}</h3>
+                    <p>{{ request.user.doctor.get_specialty_display }}</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+   <!-- Messages -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% elif 'error' in message.message|lower %}error{% elif 'success' in message.message|lower %}success{% endif %}" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" class="close-message" onclick="this.parentElement.remove()">×</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+
+   <script>
+    // Auto-hide messages after 5 seconds
+    setTimeout(function() {
+        const messages = document.querySelectorAll('.message');
+        messages.forEach(msg => {
+            msg.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => msg.remove(), 300);
+        });
+    }, 5000);
+
+    // Allow manual close of messages
+    document.querySelectorAll('.close-message').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.parentElement.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => this.parentElement.remove(), 300);
+        });
+    });
+</script>
+</body>
+</html>

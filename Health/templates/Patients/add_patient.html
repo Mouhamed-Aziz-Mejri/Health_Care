@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if patient %}Edit Patient{% else %}Add Patient{% endif %} - MedCare{% endblock %}
+
+{% block topbar_title %}{% if patient %}Edit Patient{% else %}Add New Patient{% endif %}{% endblock %}
+
+{% block active_patients %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #ecf0f1;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #1abc9c;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #bdc3c7;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-submit {
+        background: #1abc9c;
+        color: white;
+        flex: 1;
+    }
+
+    .btn-submit:hover {
+        background: #16a085;
+    }
+
+    .btn-cancel {
+        background: #ecf0f1;
+        color: #2c3e50;
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: #dfe6e9;
+    }
+
+    .errorlist {
+        list-style: none;
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .errorlist li {
+        margin-bottom: 3px;
+    }
+
+    .non-field-errors {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h2 style="margin-bottom: 25px; color: #2c3e50; font-weight: 700;">
+            {% if patient %}Edit Patient Information{% else %}Add New Patient{% endif %}
+        </h2>
+
+        {% if form.non_field_errors %}
+            <div class="non-field-errors">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_first_name">{{ form.first_name.label }}</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_last_name">{{ form.last_name.label }}</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_email">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_phone">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.phone.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_date_of_birth">{{ form.date_of_birth.label }}</label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.date_of_birth.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_gender">{{ form.gender.label }}</label>
+                    {{ form.gender }}
+                    {% if form.gender.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.gender.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_address">{{ form.address.label }}</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.address.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_city">{{ form.city.label }}</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.city.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_state">{{ form.state.label }}</label>
+                    {{ form.state }}
+                    {% if form.state.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.state.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_zip_code">{{ form.zip_code.label }}</label>
+                    {{ form.zip_code }}
+                    {% if form.zip_code.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.zip_code.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2c3e50; font-weight: 700; font-size: 16px;">Emergency Contact</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_emergency_contact">{{ form.emergency_contact.label }}</label>
+                    {{ form.emergency_contact }}
+                    {% if form.emergency_contact.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.emergency_contact.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_emergency_phone">{{ form.emergency_phone.label }}</label>
+                    {{ form.emergency_phone }}
+                    {% if form.emergency_phone.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.emergency_phone.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2c3e50; font-weight: 700; font-size: 16px;">Medical Information</h3>
+
+            <div class="form-group">
+                <label for="id_medical_history">{{ form.medical_history.label }}</label>
+                {{ form.medical_history }}
+                {% if form.medical_history.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.medical_history.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_allergies">{{ form.allergies.label }}</label>
+                {{ form.allergies }}
+                {% if form.allergies.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.allergies.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_status">{{ form.status.label }}</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.status.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    {% if patient %}Update Patient{% else %}Add Patient{% endif %}
+                </button>
+                <a href="{% url 'patients_list' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

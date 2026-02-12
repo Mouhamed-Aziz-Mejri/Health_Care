@@ -1,0 +1,605 @@
+{% extends 'base.html' %}
+{% block title %}Calendar - MedCare{% endblock %}
+
+{% block topbar_title %}Calendar{% endblock %}
+
+{% block active_calendar %}class="active"{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Calendar Container */
+    .calendar-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 30px;
+    }
+
+    .calendar-main {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+    }
+
+    /* Calendar Header */
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .calendar-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .calendar-nav {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nav-btn {
+        padding: 8px 15px;
+        background: #1abc9c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .nav-btn:hover {
+        background: #16a085;
+    }
+
+    /* Days of Week */
+    .weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .weekday {
+        text-align: center;
+        font-weight: 700;
+        color: #7f8c8d;
+        padding: 12px;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    /* Days Grid */
+    .days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+    }
+
+    .day {
+        aspect-ratio: 1;
+        padding: 12px;
+        border: 2px solid #ecf0f1;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        min-height: 100px;
+    }
+
+    .day:hover {
+        border-color: #1abc9c;
+        background: #f0f8f7;
+        box-shadow: 0 4px 12px rgba(26, 188, 156, 0.1);
+    }
+
+    .day.other-month {
+        background: #f9fafb;
+        color: #bdc3c7;
+    }
+
+    .day.today {
+        background: #1abc9c;
+        border-color: #1abc9c;
+        color: white;
+    }
+
+    .day.selected {
+        background: #e8f5f3;
+        border-color: #1abc9c;
+    }
+
+    .day-number {
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .day.today .day-number {
+        color: #0cd7af;
+    }
+
+    .day-appointments {
+        font-size: 11px;
+        color: #1abc9c;
+        overflow: hidden;
+    }
+
+    .day.today .day-appointments {
+        color: #1abc9c;
+    }
+
+    .appointment-badge {
+        background: #1abc9c;
+        color: white;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .day.today .appointment-badge {
+        background:          #1abc9c;
+;
+    }
+
+    .day.other-month .appointment-badge {
+        opacity: 0.5;
+    }
+
+    /* Sidebar */
+    .calendar-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Mini Calendar */
+    .mini-calendar {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+    }
+
+    .mini-header {
+        text-align: center;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .mini-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+
+    .mini-weekday {
+        text-align: center;
+        font-weight: 600;
+        color: #7f8c8d;
+        font-size: 11px;
+    }
+
+    .mini-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+
+    .mini-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ecf0f1;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2c3e50;
+    }
+
+    .mini-day:hover {
+        border-color: #1abc9c;
+        background: #f0f8f7;
+    }
+
+    .mini-day.today {
+        background: #1abc9c;
+        color: white;
+        border-color: #1abc9c;
+    }
+
+    .mini-day.other-month {
+        color: #bdc3c7;
+        background: #f9fafb;
+    }
+
+    /* Selected Date Info */
+    .date-info {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+    }
+
+    .info-title {
+        font-size: 13px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .info-date {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1abc9c;
+        margin-bottom: 15px;
+    }
+
+    .info-text {
+        font-size: 12px;
+        color: #7f8c8d;
+        line-height: 1.6;
+    }
+
+    /* Appointments List for Selected Day */
+    .day-appointments-list {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+    }
+
+    .list-title {
+        font-size: 14px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .appointment-item {
+        padding: 12px;
+        background: #f0f8f7;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        border-left: 4px solid #1abc9c;
+    }
+
+    .appointment-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .appointment-time {
+        font-size: 12px;
+        color: #1abc9c;
+        font-weight: 700;
+    }
+
+    .appointment-patient {
+        font-size: 13px;
+        color: #2c3e50;
+        font-weight: 600;
+        margin: 5px 0;
+    }
+
+    .appointment-type {
+        font-size: 11px;
+        color: #7f8c8d;
+    }
+
+    .no-appointments {
+        text-align: center;
+        padding: 20px;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    /* Legend */
+    .legend {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+    }
+
+    .legend-title {
+        font-size: 13px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: #2c3e50;
+    }
+
+    .legend-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+
+    .legend-color.today {
+        background: #1abc9c;
+    }
+
+    .legend-color.selected {
+        background: #e8f5f3;
+        border: 2px solid #1abc9c;
+    }
+
+    .legend-color.appointment {
+        background: #f0f8f7;
+        border-left: 4px solid #1abc9c;
+    }
+
+    @media (max-width: 1024px) {
+        .calendar-wrapper {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .calendar-main {
+            padding: 20px;
+        }
+
+        .day {
+            min-height: 80px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .calendar-main {
+            padding: 15px;
+        }
+
+        .day {
+            min-height: 70px;
+            padding: 8px;
+        }
+
+        .day-number {
+            font-size: 12px;
+        }
+
+        .appointment-badge {
+            font-size: 9px;
+        }
+
+        .calendar-sidebar {
+            order: -1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .calendar-header {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .calendar-title {
+            font-size: 20px;
+        }
+
+        .calendar-nav {
+            width: 100%;
+            gap: 5px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        .days {
+            gap: 4px;
+        }
+
+        .day {
+            aspect-ratio: auto;
+            min-height: 60px;
+            padding: 8px;
+            font-size: 11px;
+        }
+
+        .day-number {
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .day-appointments {
+            font-size: 9px;
+        }
+
+        .appointment-badge {
+            font-size: 8px;
+            padding: 1px 3px;
+        }
+
+        .weekday {
+            padding: 8px;
+            font-size: 11px;
+        }
+
+        .mini-calendar {
+            padding: 12px;
+        }
+
+        .mini-day {
+            font-size: 10px;
+        }
+
+        .info-date {
+            font-size: 18px;
+        }
+
+        .appointment-item {
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .appointment-time {
+            font-size: 11px;
+        }
+
+        .appointment-patient {
+            font-size: 12px;
+        }
+
+        .appointment-type {
+            font-size: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Appointment Calendar</h1>
+        <p>View and manage all your appointments</p>
+    </div>
+    <a href="{% url 'add_appointment' %}" class="btn-primary">+ New Appointment</a>
+</div>
+
+<!-- Calendar Wrapper -->
+<div class="calendar-wrapper">
+    <!-- Main Calendar -->
+    <div class="calendar-main">
+        <div class="calendar-header">
+            <h2 class="calendar-title">{{ month_name }} {{ year }}</h2>
+            <div class="calendar-nav">
+                <a href="?year={{ year }}&month={% if month == 1 %}12{% else %}{{ month|add:'-1' }}{% endif %}" class="nav-btn">← Previous</a>
+                <a href="{% url 'calendar' %}?year={{ today.year }}&month={{ today.month }}" class="nav-btn">Today</a>
+                <a href="?year={{ year }}&month={% if month == 12 %}1{% else %}{{ month|add:'1' }}{% endif %}" class="nav-btn">Next →</a>
+            </div>
+        </div>
+
+        <!-- Weekdays -->
+        <div class="weekdays">
+            <div class="weekday">Sunday</div>
+            <div class="weekday">Monday</div>
+            <div class="weekday">Tuesday</div>
+            <div class="weekday">Wednesday</div>
+            <div class="weekday">Thursday</div>
+            <div class="weekday">Friday</div>
+            <div class="weekday">Saturday</div>
+        </div>
+
+        <!-- Days Grid -->
+       <!-- Days Grid -->
+<div class="days">
+    {% for week in calendar %}
+        {% for day in week %}
+            {% if day == 0 %}
+                <div class="day other-month"></div>
+            {% else %}
+                <div class="day {% if day == today.day and month == today.month and year == today.year %}today{% endif %} {% if day %}selected{% endif %}">
+                    <div class="day-number">{{ day }}</div>
+                    {% if appointments_dict %}
+                        {% for d, appointments in appointments_dict.items %}
+                            {% if d == day %}
+                                {% if appointments %}
+                                    <div class="day-appointments">
+                                        <div class="appointment-badge">{{ appointments|length }} Appointment{{ appointments|length|pluralize }}</div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="calendar-sidebar">
+        <!-- Legend -->
+        {% comment %} <div class="legend">
+            <div class="legend-title">Legend</div>
+            <div class="legend-item">
+                <div class="legend-color today"></div>
+                <span>Today</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color appointment"></div>
+                <span>Has Appointments</span>
+            </div>
+        </div> {% endcomment %}
+
+        <!-- Selected Date Info -->
+       <div class="date-info">
+    <div class="info-title">Today</div>
+    <div class="info-date">{{ today|date:"M d, Y" }}</div>
+    <div class="info-text">
+        {% if appointments_dict %}
+            {% for day, appts in appointments_dict.items %}
+                {% if day == today.day %}
+                    {{ appts|length }} Appointment{{ appts|length|pluralize }} Scheduled
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            0 Appointments Scheduled
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Appointments for Today -->
+<div class="day-appointments-list">
+    <div class="list-title">Today's Appointments</div>
+    
+    {% if today_appointments %}
+        {% for appointment in today_appointments %}
+        <div class="appointment-item">
+            <div class="appointment-time">{{ appointment.scheduled_time|time:"H:i A" }}</div>
+            <div class="appointment-patient">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</div>
+            <div class="appointment-type">{{ appointment.get_appointment_type_display }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-appointments">
+            No appointments scheduled for today
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
