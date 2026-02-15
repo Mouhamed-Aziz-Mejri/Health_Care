@@ -1,4 +1,3 @@
-# Editable install with no version control (akinator==2.0.2)
 
 anyio==4.12.1
 argon2-cffi==25.1.0
@@ -96,7 +95,6 @@ python-decouple==3.8
 python-dotenv==1.2.1
 python-json-logger==4.0.0
 pytz==2025.2
-pywinpty==3.0.3
 PyYAML==6.0.3
 pyzmq==27.1.0
 referencing==0.37.0
