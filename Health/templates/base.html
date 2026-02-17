@@ -105,13 +105,303 @@
         }
 
         .topbar-icon {
+            position: relative;
             font-size: 24px;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
         }
 
         .topbar-icon:hover {
             color: #1abc9c;
+            background: #f8f9fa;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 80px;
+            width: 380px;
+            max-height: 500px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 10000;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notification-dropdown.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-header {
+            padding: 20px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .mark-all-read {
+            font-size: 12px;
+            color: #1abc9c;
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .mark-all-read:hover {
+            color: #16a085;
+            text-decoration: underline;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            gap: 15px;
+        }
+
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background: #e8f8f5;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f8f9fa;
+        }
+
+        .notification-icon.appointment {
+            background: #ebf5fb;
+            color: #3498db;
+        }
+
+        .notification-icon.patient {
+            background: #fef5e7;
+            color: #f39c12;
+        }
+
+        .notification-icon.system {
+            background: #f4ecf7;
+            color: #9b59b6;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .notification-message {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #95a5a6;
+        }
+
+        .notification-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #ecf0f1;
+            text-align: center;
+        }
+
+        .view-all-notifications {
+            color: #1abc9c;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .view-all-notifications:hover {
+            text-decoration: underline;
+        }
+
+        .empty-notifications {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .empty-notifications-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .empty-notifications-text {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Messages Dropdown */
+        .messages-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 40px;
+            width: 350px;
+            max-height: 450px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 10000;
+            animation: slideDown 0.3s ease;
+        }
+
+        .messages-dropdown.show {
+            display: flex;
+        }
+
+        .messages-header {
+            padding: 20px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .messages-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .message-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-item:hover {
+            background: #f8f9fa;
+        }
+
+        .message-item.unread {
+            background: #e8f8f5;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1abc9c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .message-sender {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #95a5a6;
+        }
+
+        .message-text {
+            font-size: 12px;
+            color: #7f8c8d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .user-profile {
@@ -223,79 +513,80 @@
             text-decoration: underline;
         }
 
-/* Messages */
-.messages {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    z-index: 10000;
-    max-width: 400px;
-}
+        /* Toast Messages */
+        .toast-messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+        }
 
-.message {
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    color: white;
-    font-weight: 600;
-    animation: slideIn 0.3s ease forwards;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-}
+        .toast-message {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            animation: slideIn 0.3s ease forwards;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
 
-.message.success {
-    background: #27ae60;
-}
+        .toast-message.success {
+            background: #27ae60;
+        }
 
-.message.error {
-    background: #e74c3c;
-}
+        .toast-message.error {
+            background: #e74c3c;
+        }
 
-.message.warning {
-    background: #f39c12;
-}
+        .toast-message.warning {
+            background: #f39c12;
+        }
 
-.message.info {
-    background: #3498db;
-}
+        .toast-message.info {
+            background: #3498db;
+        }
 
-.close-message {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 0;
-    transition: opacity 0.3s ease;
-}
+        .close-toast {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 0.3s ease;
+        }
 
-.close-message:hover {
-    opacity: 0.7;
-}
+        .close-toast:hover {
+            opacity: 0.7;
+        }
 
-@keyframes slideIn {
-    from {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
 
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-}
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
 
         /* Responsive */
         @media (max-width: 1024px) {
@@ -311,6 +602,16 @@
             .main-content {
                 margin-left: 200px;
                 padding: 20px 30px;
+            }
+
+            .notification-dropdown {
+                right: 20px;
+                width: 320px;
+            }
+
+            .messages-dropdown {
+                right: 10px;
+                width: 300px;
             }
         }
 
@@ -345,10 +646,26 @@
                 font-size: 22px;
             }
 
-            .messages {
+            .toast-messages {
                 right: 10px;
                 left: 10px;
                 max-width: none;
+            }
+
+            .notification-dropdown {
+                right: 10px;
+                left: 10px;
+                width: auto;
+            }
+
+            .messages-dropdown {
+                right: 10px;
+                left: 10px;
+                width: auto;
+            }
+
+            .user-info {
+                display: none;
             }
         }
 
@@ -368,6 +685,28 @@
             .page-title h1 {
                 font-size: 18px;
             }
+        }
+
+        /* Scrollbar Styling */
+        .notification-list::-webkit-scrollbar,
+        .message-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-track,
+        .message-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb,
+        .message-list::-webkit-scrollbar-thumb {
+            background: #bdc3c7;
+            border-radius: 3px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb:hover,
+        .message-list::-webkit-scrollbar-thumb:hover {
+            background: #95a5a6;
         }
     </style>
 
@@ -398,29 +737,73 @@
             <h1>{% block topbar_title %}Page{% endblock %}</h1>
         </div>
         <div class="topbar-icons">
-            <span class="topbar-icon">🔔</span>
-            <span class="topbar-icon">💬</span>
+            <!-- Notifications -->
+            <span class="topbar-icon" id="notificationBell">
+                🔔
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </span>
+            
+            <!-- Messages -->
+            <span class="topbar-icon" id="messageIcon">
+                💬
+                <span class="notification-badge" id="messageBadge" style="display: none;">0</span>
+            </span>
+            
+            <!-- User Profile -->
             <div class="user-profile">
-                <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+                <div class="user-avatar" id="userAvatar">
+                    {% if doctor.profile_picture %}
+                        <img src="{{ doctor.profile_picture.url }}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                    {% endif %}
+                </div>
                 <div class="user-info">
                     <h3>{{ request.user.first_name }} {{ request.user.last_name }}</h3>
-                    <p>{{ request.user.doctor.get_specialty_display }}</p>
+                    <p>Doctor</p>
                 </div>
             </div>
         </div>
     </header>
 
-   <!-- Messages -->
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-        <div class="message {% if message.tags %}{{ message.tags }}{% elif 'error' in message.message|lower %}error{% elif 'success' in message.message|lower %}success{% endif %}" role="alert">
-            <span>{{ message }}</span>
-            <button type="button" class="close-message" onclick="this.parentElement.remove()">×</button>
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <span class="mark-all-read" onclick="markAllAsRead()">Mark all as read</span>
         </div>
-    {% endfor %}
-</div>
-{% endif %}
+        <div class="notification-list" id="notificationList">
+            <!-- Notifications will be loaded here -->
+        </div>
+        <div class="notification-footer">
+            <a href="{% url 'notifications_page' %}" class="view-all-notifications">View All Notifications</a>
+        </div>
+    </div>
+
+    <!-- Messages Dropdown -->
+    <div class="messages-dropdown" id="messagesDropdown">
+        <div class="messages-header">
+            <h3>Messages</h3>
+        </div>
+        <div class="message-list" id="messageList">
+            <!-- Messages will be loaded here -->
+        </div>
+        <div class="notification-footer">
+            <a href="{% url 'messages_page' %}" class="view-all-notifications">View All Messages</a>
+        </div>
+    </div>
+
+    <!-- Toast Messages -->
+    {% if messages %}
+    <div class="toast-messages">
+        {% for message in messages %}
+            <div class="toast-message {% if message.tags %}{{ message.tags }}{% elif 'error' in message.message|lower %}error{% elif 'success' in message.message|lower %}success{% endif %}" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close-toast" onclick="this.parentElement.remove()">×</button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Main Content -->
     <main class="main-content">
@@ -429,23 +812,326 @@
 
     {% block extra_js %}{% endblock %}
 
-   <script>
-    // Auto-hide messages after 5 seconds
-    setTimeout(function() {
-        const messages = document.querySelectorAll('.message');
-        messages.forEach(msg => {
-            msg.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => msg.remove(), 300);
-        });
-    }, 5000);
+    <script>
+        // Notification System
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationList = document.getElementById('notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+        
+        const messageIcon = document.getElementById('messageIcon');
+        const messagesDropdown = document.getElementById('messagesDropdown');
+        const messageList = document.getElementById('messageList');
+        const messageBadge = document.getElementById('messageBadge');
 
-    // Allow manual close of messages
-    document.querySelectorAll('.close-message').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.parentElement.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => this.parentElement.remove(), 300);
+        // Store notifications and messages
+        let notifications = [];
+        let messages = [];
+
+        // Fetch notifications from API
+        async function fetchNotifications() {
+            try {
+                const response = await fetch('/api/notifications/');
+                const data = await response.json();
+                
+                if (data.success) {
+                    notifications = data.notifications;
+                    loadNotifications();
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                // Show empty state if API fails
+                notifications = [];
+                loadNotifications();
+            }
+        }
+
+        // Fetch messages from API
+        async function fetchMessages() {
+            try {
+                const response = await fetch('/api/messages/');
+                const data = await response.json();
+                
+                if (data.success) {
+                    messages = data.messages;
+                    loadMessages();
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+                // Show empty state if API fails
+                messages = [];
+                loadMessages();
+            }
+        }
+
+        // Load notifications
+        function loadNotifications() {
+            if (notifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div class="empty-notifications">
+                        <div class="empty-notifications-icon">🔔</div>
+                        <div class="empty-notifications-text">No notifications</div>
+                    </div>
+                `;
+                notificationBadge.style.display = 'none';
+                return;
+            }
+
+            notificationList.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.unread ? 'unread' : ''}" onclick="markAsRead(${notif.id})">
+                    <div class="notification-icon ${notif.type}">
+                        ${notif.icon}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-message">${notif.message}</div>
+                        <div class="notification-time">${notif.time}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update badge
+            const unreadCount = notifications.filter(n => n.unread).length;
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount;
+                notificationBadge.style.display = 'flex';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+
+        // Load messages
+        function loadMessages() {
+            if (messages.length === 0) {
+                messageList.innerHTML = `
+                    <div class="empty-notifications">
+                        <div class="empty-notifications-icon">💬</div>
+                        <div class="empty-notifications-text">No messages</div>
+                    </div>
+                `;
+                messageBadge.style.display = 'none';
+                return;
+            }
+
+            messageList.innerHTML = messages.map(msg => `
+                <div class="message-item ${msg.unread ? 'unread' : ''}" onclick="openMessage(${msg.id})">
+                    <div class="message-avatar">${msg.initials}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">${msg.sender}</span>
+                            <span class="message-time">${msg.time}</span>
+                        </div>
+                        <div class="message-text">${msg.message}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update badge
+            const unreadCount = messages.filter(m => m.unread).length;
+            if (unreadCount > 0) {
+                messageBadge.textContent = unreadCount;
+                messageBadge.style.display = 'flex';
+            } else {
+                messageBadge.style.display = 'none';
+            }
+        }
+
+        // Toggle notification dropdown
+        notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+            messagesDropdown.classList.remove('show');
         });
-    });
-</script>
+
+        // Toggle messages dropdown
+        messageIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            messagesDropdown.classList.toggle('show');
+            notificationDropdown.classList.remove('show');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+            if (!messagesDropdown.contains(e.target) && !messageIcon.contains(e.target)) {
+                messagesDropdown.classList.remove('show');
+            }
+        });
+
+        // Mark notification as read
+        async function markAsRead(id) {
+            try {
+                const response = await fetch(`/api/notifications/${id}/read/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const notification = notifications.find(n => n.id === id);
+                    if (notification) {
+                        notification.unread = false;
+                        loadNotifications();
+                        
+                        // Navigate to link if available
+                        if (notification.link && notification.link !== '#') {
+                            window.location.href = notification.link;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        // Mark all notifications as read
+        async function markAllAsRead() {
+            try {
+                const response = await fetch('/api/notifications/mark-all-read/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notifications.forEach(n => n.unread = false);
+                    loadNotifications();
+                    showToast('All notifications marked as read', 'success');
+                }
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+                showToast('Failed to mark notifications as read', 'error');
+            }
+        }
+
+        // Open message
+        async function openMessage(id) {
+            try {
+                const response = await fetch(`/api/messages/${id}/read/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const message = messages.find(m => m.id === id);
+                    if (message) {
+                        message.unread = false;
+                        loadMessages();
+                    }
+                    // Here you would navigate to the full message view
+                    showToast('Message opened', 'info');
+                }
+            } catch (error) {
+                console.error('Error opening message:', error);
+            }
+        }
+
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toastContainer = document.querySelector('.toast-messages') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast-message ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button type="button" class="close-toast" onclick="this.parentElement.remove()">×</button>
+            `;
+            toastContainer.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.className = 'toast-messages';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNotifications();
+            fetchMessages();
+            
+            // Refresh notifications every 60 seconds
+            setInterval(() => {
+                fetchNotifications();
+                fetchMessages();
+            }, 60000);
+        });
+
+        // Auto-hide toast messages after 5 seconds
+        setTimeout(function() {
+            const toasts = document.querySelectorAll('.toast-message');
+            toasts.forEach(toast => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            });
+        }, 5000);
+
+        // Allow manual close of toast messages
+        document.querySelectorAll('.close-toast').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => this.parentElement.remove(), 300);
+            });
+        });
+
+        // Simulate real-time notifications (optional - remove in production)
+        setInterval(() => {
+            // This simulates receiving a new notification every 30 seconds
+            // In production, replace this with WebSocket or polling
+            const types = ['appointment', 'patient', 'system'];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const icons = { appointment: '📅', patient: '👤', system: '⚙️' };
+            
+            // Uncomment to test real-time notifications
+            // notifications.unshift({
+            //     id: Date.now(),
+            //     type: randomType,
+            //     icon: icons[randomType],
+            //     title: 'New Notification',
+            //     message: 'This is a test notification',
+            //     time: 'Just now',
+            //     unread: true
+            // });
+            // loadNotifications();
+            // showToast('New notification received!', 'info');
+        }, 30000);
+    </script>
 </body>
 </html>

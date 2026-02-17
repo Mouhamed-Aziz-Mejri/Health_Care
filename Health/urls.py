@@ -54,5 +54,18 @@ path('prescriptions/<int:prescription_id>/download/', views.prescription_downloa
     path('settings/update-notifications/', views.update_notifications, name='update_notifications'),
     path('settings/update-preferences/', views.update_preferences, name='update_preferences'),
     path('settings/delete-account/', views.delete_account, name='delete_account'),
+      # Notification URLs
+    path('api/notifications/', views.get_notifications, name='get_notifications'),
+    path('api/notifications/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('api/notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    path('api/notifications/<int:notification_id>/delete/', views.delete_notification, name='delete_notification'),
+    
+    # Message URLs
+    path('api/messages/', views.get_messages, name='get_messages'),
+    path('api/messages/<int:message_id>/read/', views.mark_message_read, name='mark_message_read'),
+    
+    # Full page views
+    path('notifications/', views.notifications_page, name='notifications_page'),
+    path('messages/', views.messages_page, name='messages_page'),
 
 ]

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.db.models import Case, When, Value, IntegerField
 from django.utils.timezone import now
+from django.views.decorators.http import require_http_methods
 
 from numpy import save
 from .models import Doctor, Patient, Appointment, Consultation
@@ -1157,58 +1158,34 @@ def settings_view(request):
 
 @login_required(login_url='login')
 def update_profile(request):
-    """
-    Update doctor profile information
-    """
     if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+        return JsonResponse({'success': False}, status=405)
     
     try:
         doctor = Doctor.objects.get(user=request.user)
-    except Doctor.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Doctor not found'}, status=404)
-    
-    try:
-        # Update User model fields
+        
+        # Update user fields
         user = request.user
         user.first_name = request.POST.get('first_name', '').strip()
         user.last_name = request.POST.get('last_name', '').strip()
-        
-        # Check if email is being changed and if it's already taken
-        new_email = request.POST.get('email', '').strip()
-        if new_email != user.email:
-            if User.objects.filter(email=new_email).exclude(id=user.id).exists():
-                return JsonResponse({
-                    'success': False,
-                    'message': 'This email is already in use by another account'
-                })
-            user.email = new_email
-        
+        user.email = request.POST.get('email', '').strip()
         user.save()
         
-        # Update Doctor model fields
-        doctor.phone = request.POST.get('phone', '').strip()
-        doctor.license_number = request.POST.get('license_number', '').strip()
-        doctor.specialty = request.POST.get('specialty', '').strip()
-        doctor.bio = request.POST.get('bio', '').strip()
+        # Update doctor fields
+        doctor.phone = request.POST.get('phone', '')
+        doctor.license_number = request.POST.get('license_number', '')
+        doctor.specialty = request.POST.get('specialty', '')
+        doctor.bio = request.POST.get('bio', '')
         
-        # Handle profile picture upload if provided
+        # ✅ CRITICAL: Handle file upload
         if 'profile_picture' in request.FILES:
             doctor.profile_picture = request.FILES['profile_picture']
         
         doctor.save()
         
-        return JsonResponse({
-            'success': True,
-            'message': 'Profile updated successfully'
-        })
-        
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Error updating profile: {str(e)}'
-        }, status=500)
-
+        return JsonResponse({'success': True})
+    except:
+        return JsonResponse({'success': False}, status=500)
 
 @login_required(login_url='login')
 def change_password(request):
@@ -1373,3 +1350,261 @@ def delete_account(request):
             'success': False,
             'message': f'Error deleting account: {str(e)}'
         }, status=500)
+        
+@login_required(login_url='login')
+def get_notifications(request):
+    """
+    API endpoint to get user notifications
+    Returns JSON list of notifications
+    """
+    try:
+        notifications = Notification.objects.filter(user=request.user)[:20]  # Get last 20
+        
+        notifications_data = [
+            {
+                'id': notif.id,
+                'type': notif.notification_type,
+                'icon': notif.get_icon(),
+                'title': notif.title,
+                'message': notif.message,
+                'time': notif.get_time_since(),
+                'unread': not notif.is_read,
+                'link': notif.link or '#'
+            }
+            for notif in notifications
+        ]
+        
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        
+        return JsonResponse({
+            'success': True,
+            'notifications': notifications_data,
+            'unread_count': unread_count
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+@login_required(login_url='login')
+def get_messages(request):
+    """
+    API endpoint to get user messages
+    Returns JSON list of messages
+    """
+    try:
+        messages = Message.objects.filter(recipient=request.user)[:20]  # Get last 20
+        
+        messages_data = [
+            {
+                'id': msg.id,
+                'sender': f"{msg.sender.first_name} {msg.sender.last_name}",
+                'initials': f"{msg.sender.first_name[0]}{msg.sender.last_name[0]}".upper(),
+                'message': msg.message[:100],  # Truncate long messages
+                'time': msg.get_time_since(),
+                'unread': not msg.is_read
+            }
+            for msg in messages
+        ]
+        
+        unread_count = Message.objects.filter(recipient=request.user, is_read=False).count()
+        
+        return JsonResponse({
+            'success': True,
+            'messages': messages_data,
+            'unread_count': unread_count
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def mark_notification_read(request, notification_id):
+    """
+    Mark a single notification as read
+    """
+    try:
+        notification = Notification.objects.get(id=notification_id, user=request.user)
+        notification.is_read = True
+        notification.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Notification marked as read'
+        })
+        
+    except Notification.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Notification not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def mark_all_notifications_read(request):
+    """
+    Mark all notifications as read for the current user
+    """
+    try:
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'All notifications marked as read'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def mark_message_read(request, message_id):
+    """
+    Mark a single message as read
+    """
+    try:
+        message = Message.objects.get(id=message_id, recipient=request.user)
+        message.is_read = True
+        message.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Message marked as read'
+        })
+        
+    except Message.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Message not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+@login_required(login_url='login')
+def delete_notification(request, notification_id):
+    """
+    Delete a notification
+    """
+    try:
+        notification = Notification.objects.get(id=notification_id, user=request.user)
+        notification.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Notification deleted'
+        })
+        
+    except Notification.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Notification not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+@login_required(login_url='login')
+def notifications_page(request):
+    """
+    Full notifications page view
+    """
+    try:
+        doctor = Doctor.objects.get(user=request.user)
+    except Doctor.DoesNotExist:
+        return redirect('login')
+    
+    context = {
+        'doctor': doctor,
+    }
+    
+    return render(request, 'notifications.html', context)
+
+
+@login_required(login_url='login')
+def messages_page(request):
+    """
+    Full messages page view
+    """
+    try:
+        doctor = Doctor.objects.get(user=request.user)
+    except Doctor.DoesNotExist:
+        return redirect('login')
+    
+    context = {
+        'doctor': doctor,
+    }
+    
+    return render(request, 'messages.html', context)
+
+
+# Helper function to create appointment notifications
+def create_appointment_notification(doctor, appointment):
+    """
+    Create notification when appointment is scheduled
+    """
+    from .models import create_notification
+    
+    create_notification(
+        user=doctor.user,
+        notification_type='appointment',
+        title='Upcoming Appointment',
+        message=f'You have an appointment with {appointment.patient.first_name} {appointment.patient.last_name} at {appointment.scheduled_time.strftime("%I:%M %p")}',
+        link=f'/appointments/{appointment.id}/'
+    )
+
+
+# Helper function to create patient notifications
+def create_patient_notification(doctor, patient):
+    """
+    Create notification when new patient registers
+    """
+    from .models import create_notification
+    
+    create_notification(
+        user=doctor.user,
+        notification_type='patient',
+        title='New Patient Registration',
+        message=f'{patient.first_name} {patient.last_name} has registered as a new patient',
+        link=f'/patients/{patient.id}/'
+    )
+
+
+# Helper function to create prescription notifications
+def create_prescription_notification(doctor, prescription):
+    """
+    Create notification when prescription is created
+    """
+    from .models import create_notification
+    
+    create_notification(
+        user=doctor.user,
+        notification_type='prescription',
+        title='New Prescription Created',
+        message=f'Prescription #{prescription.id} created for {prescription.patient.first_name} {prescription.patient.last_name}',
+        link=f'/prescriptions/{prescription.id}/'
+    )

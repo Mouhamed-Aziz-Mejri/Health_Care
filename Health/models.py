@@ -233,3 +233,93 @@ class Medicine(models.Model):
 
     class Meta:
         ordering = ['created_at']
+        
+        
+class Notification(models.Model):
+    """
+    Model for storing user notifications
+    """
+    NOTIFICATION_TYPES = (
+        ('appointment', 'Appointment'),
+        ('patient', 'Patient'),
+        ('prescription', 'Prescription'),
+        ('system', 'System'),
+        ('reminder', 'Reminder'),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    link = models.CharField(max_length=500, blank=True, null=True)  # Optional link to related object
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"
+    
+    def get_icon(self):
+        """Return emoji icon based on notification type"""
+        icons = {
+            'appointment': '📅',
+            'patient': '👤',
+            'prescription': '💊',
+            'system': '⚙️',
+            'reminder': '⏰',
+        }
+        return icons.get(self.notification_type, '📌')
+    
+    def get_time_since(self):
+        """Return human-readable time since creation"""
+        from django.utils.timesince import timesince
+        return f"{timesince(self.created_at)} ago"
+
+
+class Message(models.Model):
+    """
+    Model for storing internal messages between doctors and patients
+    """
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    subject = models.CharField(max_length=200, blank=True)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"From {self.sender.username} to {self.recipient.username}"
+    
+    def get_time_since(self):
+        """Return human-readable time since creation"""
+        from django.utils.timesince import timesince
+        return f"{timesince(self.created_at)} ago"
+
+
+# Helper function to create notifications
+def create_notification(user, notification_type, title, message, link=None):
+    """
+    Helper function to create a notification
+    
+    Usage:
+    create_notification(
+        user=doctor_user,
+        notification_type='appointment',
+        title='Upcoming Appointment',
+        message='You have an appointment with John Doe at 2:00 PM',
+        link='/appointments/123/'
+    )
+    """
+    notification = Notification.objects.create(
+        user=user,
+        notification_type=notification_type,
+        title=title,
+        message=message,
+        link=link
+    )
+    return notification

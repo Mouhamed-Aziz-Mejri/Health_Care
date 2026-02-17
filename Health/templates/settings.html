@@ -606,16 +606,20 @@
                 <h3 class="section-title">Profile Information</h3>
                 <p class="section-description">Update your personal information and professional details</p>
 
-                <form id="profileForm" method="POST" action="{% url 'update_profile' %}">
+                <form id="profileForm" method="POST" action="{% url 'update_profile' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     <!-- Profile Picture -->
                     <div class="profile-picture-section">
-                        <div class="profile-picture-preview">
-                            {% if doctor.user.first_name %}
-                                {{ doctor.user.first_name.0 }}{{ doctor.user.last_name.0 }}
+                        <div class="profile-picture-preview" id="profilePicturePreview">
+                            {% if doctor.profile_picture %}
+                                <img src="{{ doctor.profile_picture.url }}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                             {% else %}
-                                DR
+                                {% if doctor.user.first_name %}
+                                    {{ doctor.user.first_name.0 }}{{ doctor.user.last_name.0 }}
+                                {% else %}
+                                    DR
+                                {% endif %}
                             {% endif %}
                         </div>
                         <div class="profile-picture-info">
@@ -969,6 +973,145 @@
         });
     });
 
+    // Store original form values for reset functionality
+    const originalFormValues = {};
+    let hasUnsavedChanges = false;
+    
+    function storeOriginalValues(formId) {
+        const form = document.getElementById(formId);
+        const formData = new FormData(form);
+        originalFormValues[formId] = {};
+        
+        for (let [key, value] of formData.entries()) {
+            originalFormValues[formId][key] = value;
+        }
+        
+        // Store checkbox states
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            originalFormValues[formId][checkbox.name] = checkbox.checked;
+        });
+    }
+    
+    function detectFormChanges(formId) {
+        const form = document.getElementById(formId);
+        const currentData = new FormData(form);
+        const originalData = originalFormValues[formId];
+        
+        if (!originalData) return false;
+        
+        // Check text inputs and selects
+        for (let [key, value] of currentData.entries()) {
+            if (originalData[key] !== value) {
+                return true;
+            }
+        }
+        
+        // Check checkboxes
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            if (originalData[checkbox.name] !== checkbox.checked) {
+                return true;
+            }
+        });
+        
+        return false;
+    }
+    
+    function markFormAsChanged(formId) {
+        const form = document.getElementById(formId);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        if (detectFormChanges(formId)) {
+            hasUnsavedChanges = true;
+            if (submitBtn) {
+                submitBtn.style.boxShadow = '0 0 0 3px rgba(26, 188, 156, 0.3)';
+                submitBtn.style.animation = 'pulse 2s infinite';
+            }
+        } else {
+            hasUnsavedChanges = false;
+            if (submitBtn) {
+                submitBtn.style.boxShadow = '';
+                submitBtn.style.animation = '';
+            }
+        }
+    }
+    
+    function resetFormToOriginal(formId) {
+        const form = document.getElementById(formId);
+        const values = originalFormValues[formId];
+        
+        if (!values) return;
+        
+        // Reset text inputs, textareas, and selects
+        for (let key in values) {
+            const element = form.querySelector(`[name="${key}"]`);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = values[key];
+                } else {
+                    element.value = values[key];
+                }
+            }
+        }
+        
+        // Reset profile picture preview
+        const preview = document.querySelector('.profile-picture-preview');
+        if (preview && preview.dataset.originalContent) {
+            preview.style.backgroundImage = '';
+            preview.textContent = preview.dataset.originalContent;
+        }
+        
+        // Clear unsaved changes indicator
+        hasUnsavedChanges = false;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.style.boxShadow = '';
+            submitBtn.style.animation = '';
+        }
+        
+        showSuccessMessage('✅ Form reset to original values');
+    }
+    
+    // Add pulse animation for changed forms
+    const pulseStyle = document.createElement('style');
+    pulseStyle.textContent = `
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+    `;
+    document.head.appendChild(pulseStyle);
+    
+    // Store original values on page load
+    window.addEventListener('DOMContentLoaded', function() {
+        storeOriginalValues('profileForm');
+        storeOriginalValues('notificationsForm');
+        storeOriginalValues('preferencesForm');
+        
+        // Store original profile picture content
+        const preview = document.querySelector('.profile-picture-preview');
+        if (preview) {
+            preview.dataset.originalContent = preview.textContent;
+        }
+        
+        // Add change listeners to all forms
+        ['profileForm', 'notificationsForm', 'preferencesForm'].forEach(formId => {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.addEventListener('input', () => markFormAsChanged(formId));
+                form.addEventListener('change', () => markFormAsChanged(formId));
+            }
+        });
+    });
+    
+    // Warn user before leaving page with unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    });
+
     // Profile Form Submission
     document.getElementById('profileForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -977,6 +1120,24 @@
         const button = this.querySelector('button[type="submit"]');
         const btnText = button.querySelector('.btn-text');
         const spinner = button.querySelector('.spinner');
+        
+        // Validate required fields
+        const firstName = formData.get('first_name');
+        const lastName = formData.get('last_name');
+        const email = formData.get('email');
+        const licenseNumber = formData.get('license_number');
+        
+        if (!firstName || !lastName || !email || !licenseNumber) {
+            alert('❌ Please fill in all required fields (marked with *)');
+            return;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('❌ Please enter a valid email address');
+            return;
+        }
         
         // Show loading state
         btnText.style.display = 'none';
@@ -993,14 +1154,25 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showSuccessMessage('Profile updated successfully!');
+                showSuccessMessage('✅ Profile updated successfully!');
+                
+                // Update stored original values with new values
+                storeOriginalValues('profileForm');
+                hasUnsavedChanges = false;
+                button.style.boxShadow = '';
+                button.style.animation = '';
+                
+                // Reload page after 1 second to show updated profile picture in navbar
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
-                alert('Error: ' + (data.message || 'Failed to update profile'));
+                alert('❌ Error: ' + (data.message || 'Failed to update profile'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating your profile');
+            alert('❌ An error occurred while updating your profile. Please try again.');
         })
         .finally(() => {
             btnText.style.display = 'inline';
@@ -1008,25 +1180,65 @@
             button.disabled = false;
         });
     });
+    
+    // Profile Form Reset
+    document.getElementById('profileForm').addEventListener('reset', function(e) {
+        e.preventDefault();
+        
+        if (confirm('Are you sure you want to reset all changes? This will restore the original values.')) {
+            resetFormToOriginal('profileForm');
+        }
+    });
 
-    // Password Form Submission
+    // Password Form Submission with Enhanced Validation
     document.getElementById('passwordForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        const currentPassword = this.querySelector('[name="current_password"]').value;
         const newPassword = this.querySelector('[name="new_password"]').value;
         const confirmPassword = this.querySelector('[name="confirm_password"]').value;
         
+        // Validation
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('❌ Please fill in all password fields');
+            return;
+        }
+        
         if (newPassword !== confirmPassword) {
-            alert('New passwords do not match!');
+            alert('❌ New passwords do not match!');
+            this.querySelector('[name="confirm_password"]').focus();
             return;
         }
         
         if (newPassword.length < 8) {
-            alert('Password must be at least 8 characters long');
+            alert('❌ Password must be at least 8 characters long');
+            this.querySelector('[name="new_password"]').focus();
             return;
         }
         
+        // Check password strength
+        const hasUpperCase = /[A-Z]/.test(newPassword);
+        const hasLowerCase = /[a-z]/.test(newPassword);
+        const hasNumbers = /\d/.test(newPassword);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+        
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+            if (!confirm('⚠️ Your password should contain uppercase letters, lowercase letters, and numbers for better security. Continue anyway?')) {
+                return;
+            }
+        }
+        
         const formData = new FormData(this);
+        const button = this.querySelector('button[type="submit"]');
+        const btnText = button.textContent;
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        spinner.style.display = 'inline-block';
+        
+        // Show loading state
+        button.textContent = '';
+        button.appendChild(spinner);
+        button.disabled = true;
         
         fetch(this.action, {
             method: 'POST',
@@ -1038,23 +1250,37 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showSuccessMessage('Password changed successfully!');
+                showSuccessMessage('✅ Password changed successfully! Your session has been maintained.');
                 this.reset();
             } else {
-                alert('Error: ' + (data.message || 'Failed to change password'));
+                alert('❌ Error: ' + (data.message || 'Failed to change password'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while changing your password');
+            alert('❌ An error occurred while changing your password. Please try again.');
+        })
+        .finally(() => {
+            button.textContent = btnText;
+            button.disabled = false;
         });
     });
 
-    // Notifications Form
+    // Notifications Form Submission
     document.getElementById('notificationsForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
+        const button = this.querySelector('button[type="submit"]');
+        const btnText = button.textContent;
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        spinner.style.display = 'inline-block';
+        
+        // Show loading state
+        button.textContent = '';
+        button.appendChild(spinner);
+        button.disabled = true;
         
         fetch(this.action, {
             method: 'POST',
@@ -1066,22 +1292,38 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showSuccessMessage('Notification preferences saved!');
+                showSuccessMessage('✅ Notification preferences saved successfully!');
+                // Update stored values
+                storeOriginalValues('notificationsForm');
             } else {
-                alert('Error: ' + (data.message || 'Failed to save preferences'));
+                alert('❌ Error: ' + (data.message || 'Failed to save preferences'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while saving preferences');
+            alert('❌ An error occurred while saving preferences. Please try again.');
+        })
+        .finally(() => {
+            button.textContent = btnText;
+            button.disabled = false;
         });
     });
 
-    // Preferences Form
+    // Preferences Form Submission
     document.getElementById('preferencesForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
+        const button = this.querySelector('button[type="submit"]');
+        const btnText = button.textContent;
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        spinner.style.display = 'inline-block';
+        
+        // Show loading state
+        button.textContent = '';
+        button.appendChild(spinner);
+        button.disabled = true;
         
         fetch(this.action, {
             method: 'POST',
@@ -1093,14 +1335,20 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showSuccessMessage('Display preferences saved!');
+                showSuccessMessage('✅ Display preferences saved successfully!');
+                // Update stored values
+                storeOriginalValues('preferencesForm');
             } else {
-                alert('Error: ' + (data.message || 'Failed to save preferences'));
+                alert('❌ Error: ' + (data.message || 'Failed to save preferences'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while saving preferences');
+            alert('❌ An error occurred while saving preferences. Please try again.');
+        })
+        .finally(() => {
+            button.textContent = btnText;
+            button.disabled = false;
         });
     });
 
@@ -1168,13 +1416,24 @@
     document.getElementById('profilePicture').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('❌ File size must be less than 5MB');
+                this.value = '';
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                alert('❌ Please select an image file');
+                this.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
-                const preview = document.querySelector('.profile-picture-preview');
-                preview.style.backgroundImage = `url(${e.target.result})`;
-                preview.style.backgroundSize = 'cover';
-                preview.style.backgroundPosition = 'center';
-                preview.textContent = '';
+                const preview = document.getElementById('profilePicturePreview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
             };
             reader.readAsDataURL(file);
         }
