@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set Django settings
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "HealthCare.settings")
 
 # ASGI application
 from django.core.asgi import get_asgi_application
